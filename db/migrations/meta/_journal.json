@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1723406816656,
+      "tag": "0000_sleepy_sunset_bain",
+      "breakpoints": true
+    }
+  ]
+}

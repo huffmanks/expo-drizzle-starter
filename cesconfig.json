@@ -1,6 +1,6 @@
 {
   "cesVersion": "2.11.17",
-  "projectName": "my-expo-app",
+  "projectName": "expo-drizzle-starter",
   "packages": [
     {
       "name": "expo-router",
