@@ -1,42 +1,25 @@
-import * as TabsPrimitive from '@rn-primitives/tabs';
-import * as React from 'react';
-import { cn } from '@/lib/utils';
-import { TextClassContext } from './text';
+import { cn } from "@/lib/utils";
+import * as TabsPrimitive from "@rn-primitives/tabs";
+import * as React from "react";
+import { TextClassContext } from "./text";
 
 const Tabs = TabsPrimitive.Root;
 
-const TabsList = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn(
-      'native:h-12 native:px-1.5 h-10 items-center justify-center rounded-md bg-muted p-1 web:inline-flex',
-      className
-    )}
-    {...props}
-  />
+const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>>(({ className, ...props }, ref) => (
+  <TabsPrimitive.List ref={ref} className={cn("native:h-12 native:px-1.5 h-10 items-center justify-center rounded-md bg-muted p-1 web:inline-flex", className)} {...props} />
 ));
 TabsList.displayName = TabsPrimitive.List.displayName;
 
-const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => {
+const TabsTrigger = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Trigger>, React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>>(({ className, ...props }, ref) => {
   const { value } = TabsPrimitive.useRootContext();
   return (
-    <TextClassContext.Provider
-      value={cn(
-        'text-sm native:text-base font-medium text-muted-foreground web:transition-all',
-        value === props.value && 'text-foreground'
-      )}>
+    <TextClassContext.Provider value={cn("text-sm native:text-base font-medium text-muted-foreground web:transition-all", value === props.value && "text-foreground")}>
       <TabsPrimitive.Trigger
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-sm font-medium shadow-none web:whitespace-nowrap web:ring-offset-background web:transition-all web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2',
-          props.disabled && 'opacity-50 web:pointer-events-none',
-          props.value === value && 'bg-background shadow-lg shadow-foreground/10',
+          "inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-sm font-medium shadow-none web:whitespace-nowrap web:ring-offset-background web:transition-all web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2",
+          props.disabled && "opacity-50 web:pointer-events-none",
+          props.value === value && "bg-background shadow-lg shadow-foreground/10",
           className
         )}
         {...props}
@@ -46,16 +29,10 @@ const TabsTrigger = React.forwardRef<
 });
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
 
-const TabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
+const TabsContent = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Content>, React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>>(({ className, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
-    className={cn(
-      'web:ring-offset-background web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2',
-      className
-    )}
+    className={cn("web:ring-offset-background web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2", className)}
     {...props}
   />
 ));
