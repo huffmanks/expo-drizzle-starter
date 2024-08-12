@@ -5,5 +5,6 @@ module.exports = {
   bracketSameLine: true,
   trailingComma: "es5",
   plugins: ["prettier-plugin-organize-imports", "prettier-plugin-tailwindcss"],
+  tailwindConfig: "./tailwind.config.ts",
   tailwindAttributes: ["className"],
 };

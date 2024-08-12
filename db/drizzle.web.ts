@@ -8,7 +8,7 @@ export const initialize = async (): Promise<SQLJsDatabase> => {
     locateFile: (file) => `https://sql.js.org/dist/${file}`,
   });
 
-  const dataPromise = fetch("/database.sqlite").then((res) => res.arrayBuffer());
+  const dataPromise = fetch("/timer.sqlite").then((res) => res.arrayBuffer());
   const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
   const sqldb = new SQL.Database(new Uint8Array(buf));
   const db = drizzle(sqldb);

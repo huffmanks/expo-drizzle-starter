@@ -5,7 +5,7 @@ import { openDatabaseSync } from "expo-sqlite/next";
 import migrations from "./migrations/migrations";
 
 export const expoDb = openDatabaseSync("timer.db");
-const db = drizzle(expoDb);
+export const db = drizzle(expoDb);
 
 export const initialize = (): Promise<ExpoSQLiteDatabase> => {
   return Promise.resolve(db);

@@ -9,7 +9,8 @@
     "prebuild": "expo prebuild",
     "format": "prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
     "web": "expo start --web",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "npx ts-node db/migrate.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",

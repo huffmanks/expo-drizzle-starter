@@ -7,7 +7,7 @@ import initSqlJs from "sql.js";
 export let db: SQLJsDatabase;
 
 const run = async () => {
-  const filebuffer = fs.readFileSync(path.resolve(".", "public/database.sqlite"));
+  const filebuffer = fs.readFileSync(path.resolve(".", "public/timer.sqlite"));
   const SQL = await initSqlJs();
   const sqldb = new SQL.Database(filebuffer);
   const database = drizzle(sqldb);
@@ -17,6 +17,6 @@ const run = async () => {
 
   const data = sqldb.export();
   const buffer = Buffer.from(data);
-  fs.writeFileSync(path.resolve(".", "public/database.sqlite"), buffer);
+  fs.writeFileSync(path.resolve(".", "public/timer.sqlite"), buffer);
 };
 run().catch(console.log);

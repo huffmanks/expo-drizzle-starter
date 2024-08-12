@@ -1,44 +1,56 @@
-import * as React from 'react';
-import { View } from 'react-native';
-import Animated, { FadeInUp, FadeOutDown, LayoutAnimationConfig } from 'react-native-reanimated';
-import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
+import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
+import * as React from "react";
+import { View } from "react-native";
+import Animated, { FadeInUp, FadeOutDown, LayoutAnimationConfig } from "react-native-reanimated";
 
-import { expoDb, useMigrationHelper } from '@/db/drizzle';
-import { Info } from '@/lib/icons/Info';
+import { expoDb, useMigrationHelper } from "@/db/drizzle";
+import { useDatabase } from "@/db/provider";
+import { Group, group } from "@/db/schema";
+import { Info } from "@/lib/icons/Info";
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Text } from '@/components/ui/text';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Text } from "@/components/ui/text";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-const GITHUB_AVATAR_URI =
-  'https://i.pinimg.com/originals/ef/a2/8d/efa28d18a04e7fa40ed49eeb0ab660db.jpg';
+const GITHUB_AVATAR_URI = "https://i.pinimg.com/originals/ef/a2/8d/efa28d18a04e7fa40ed49eeb0ab660db.jpg";
 
 export default function Screen() {
   const [progress, setProgress] = React.useState(78);
+  const [groups, setGroups] = React.useState<Group[] | []>([]);
 
+  const { db } = useDatabase();
   const { success, error } = useMigrationHelper();
   useDrizzleStudio(expoDb);
 
+  console.log("db", db);
+  console.log("groups", groups);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      if (db) {
+        await db.insert(group).values({ title: "Andrew" });
+
+        const data = db.select().from(group).all();
+        setGroups(data);
+      }
+    };
+
+    fetchData();
+  }, [db]);
+
   if (error) {
     return (
-      <View className="bg-secondary/30 flex-1 gap-5 p-6">
+      <View className="flex-1 gap-5 bg-secondary/30 p-6">
         <Text>Migration error: {error.message}</Text>
       </View>
     );
   }
   if (!success) {
     return (
-      <View className="bg-secondary/30 flex-1 gap-5 p-6">
+      <View className="flex-1 gap-5 bg-secondary/30 p-6">
         <Text>Migration is in progress...</Text>
       </View>
     );
@@ -48,7 +60,8 @@ export default function Screen() {
     setProgress(Math.floor(Math.random() * 100));
   }
   return (
-    <View className="bg-secondary/30 flex-1 items-center justify-center gap-5 p-6">
+    <View className="flex-1 items-center justify-center gap-5 bg-secondary/30 p-6">
+      <View className="flex flex-row gap-4">{groups && groups.map((group) => <Text key={group.id}>{group.title}</Text>)}</View>
       <Text>Hello</Text>
       <Card className="w-full max-w-sm rounded-2xl p-6">
         <CardHeader className="items-center">
@@ -64,7 +77,7 @@ export default function Screen() {
             <CardDescription className="text-base font-semibold">Scientist</CardDescription>
             <Tooltip delayDuration={150}>
               <TooltipTrigger className="px-2 pb-0.5 active:opacity-50">
-                <Info size={14} strokeWidth={2.5} className="text-foreground/70 h-4 w-4" />
+                <Info size={14} strokeWidth={2.5} className="h-4 w-4 text-foreground/70" />
               </TooltipTrigger>
               <TooltipContent className="px-4 py-2 shadow">
                 <Text className="native:text-lg">Freelance</Text>
@@ -75,38 +88,31 @@ export default function Screen() {
         <CardContent>
           <View className="flex-row justify-around gap-3">
             <View className="items-center">
-              <Text className="text-muted-foreground text-sm">Dimension</Text>
+              <Text className="text-sm text-muted-foreground">Dimension</Text>
               <Text className="text-xl font-semibold">C-137</Text>
             </View>
             <View className="items-center">
-              <Text className="text-muted-foreground text-sm">Age</Text>
+              <Text className="text-sm text-muted-foreground">Age</Text>
               <Text className="text-xl font-semibold">70</Text>
             </View>
             <View className="items-center">
-              <Text className="text-muted-foreground text-sm">Species</Text>
+              <Text className="text-sm text-muted-foreground">Species</Text>
               <Text className="text-xl font-semibold">Human</Text>
             </View>
           </View>
         </CardContent>
         <CardFooter className="flex-col gap-3 pb-0">
           <View className="flex-row items-center overflow-hidden">
-            <Text className="text-muted-foreground text-sm">Productivity:</Text>
+            <Text className="text-sm text-muted-foreground">Productivity:</Text>
             <LayoutAnimationConfig skipEntering>
-              <Animated.View
-                key={progress}
-                entering={FadeInUp}
-                exiting={FadeOutDown}
-                className="w-11 items-center">
+              <Animated.View key={progress} entering={FadeInUp} exiting={FadeOutDown} className="w-11 items-center">
                 <Text className="text-sm font-bold text-sky-600">{progress}%</Text>
               </Animated.View>
             </LayoutAnimationConfig>
           </View>
           <Progress value={progress} className="h-2" indicatorClassName="bg-sky-600" />
           <View />
-          <Button
-            variant="outline"
-            className="shadow-foreground/5 shadow"
-            onPress={updateProgressValue}>
+          <Button variant="outline" className="shadow shadow-foreground/5" onPress={updateProgressValue}>
             <Text>Update</Text>
           </Button>
         </CardFooter>
