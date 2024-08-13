@@ -11,6 +11,9 @@ importers:
       '@expo/vector-icons':
         specifier: ^14.0.0
         version: 14.0.2
+      '@hookform/resolvers':
+        specifier: ^3.9.0
+        version: 3.9.0(react-hook-form@7.52.2(react@18.2.0))
       '@paralleldrive/cuid2':
         specifier: ^2.2.2
         version: 2.2.2
@@ -193,7 +196,7 @@ importers:
         version: 4.5.4(@types/react@18.2.79)(react@18.2.0)
     devDependencies:
       '@babel/core':
-        specifier: ^7.20.0
+        specifier: ^7.25.2
         version: 7.25.2
       '@types/react':
         specifier: ~18.2.45
@@ -1386,6 +1389,11 @@ packages:
 
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
+
+  '@hookform/resolvers@3.9.0':
+    resolution: {integrity: sha512-bU0Gr4EepJ/EQsH/IwEzYLsT/PEj5C0ynLQ4m+GSHS+xKH4TfSelhluTgOaoc4kA5s7eCsQbM4wvZLzELmWzUg==}
+    peerDependencies:
+      react-hook-form: ^7.0.0
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -7649,6 +7657,10 @@ snapshots:
   '@hapi/topo@5.1.0':
     dependencies:
       '@hapi/hoek': 9.3.0
+
+  '@hookform/resolvers@3.9.0(react-hook-form@7.52.2(react@18.2.0))':
+    dependencies:
+      react-hook-form: 7.52.2(react@18.2.0)
 
   '@isaacs/cliui@8.0.2':
     dependencies:

@@ -1,6 +1,7 @@
 import { SQLJsDatabase, drizzle } from "drizzle-orm/sql-js";
 import { useEffect, useReducer } from "react";
 import initSqlJs from "sql.js";
+
 import { useDatabase } from "./provider";
 
 export const initialize = async (): Promise<SQLJsDatabase> => {
