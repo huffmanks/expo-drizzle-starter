@@ -3,24 +3,24 @@ import { SQLJsDatabase } from "drizzle-orm/sql-js";
 import { PropsWithChildren, createContext, useContext, useEffect, useState } from "react";
 
 import {
-  deleteGroup,
+  deleteTag,
   deleteTimer,
-  getGroupById,
-  getGroups,
+  getTagById,
+  getTags,
   getTimerById,
   getTimers,
-  updateGroup,
+  updateTag,
   updateTimer,
 } from "./actions";
 import { initialize } from "./drizzle";
-import { Group, Timer } from "./schema";
+import { Tag, Timer } from "./schema";
 
 type ContextType = {
   db: SQLJsDatabase | ExpoSQLiteDatabase | undefined;
-  getGroups: () => Promise<Group[]>;
-  getGroupById: (id: number) => Promise<Group | undefined>;
-  updateGroup: (id: number, data: Partial<Group>) => Promise<void | null>;
-  deleteGroup: (id: number) => Promise<void | null>;
+  getTags: () => Promise<Tag[]>;
+  getTagById: (id: number) => Promise<Tag | undefined>;
+  updateTag: (id: number, data: Partial<Tag>) => Promise<void | null>;
+  deleteTag: (id: number) => Promise<void | null>;
   getTimers: () => Promise<Timer[]>;
   getTimerById: (id: number) => Promise<Timer | undefined>;
   updateTimer: (id: number, data: Partial<Timer>) => Promise<void | null>;
@@ -29,10 +29,10 @@ type ContextType = {
 
 export const DatabaseContext = createContext<ContextType>({
   db: undefined,
-  getGroups: async () => [],
-  getGroupById: async () => undefined,
-  updateGroup: async () => null,
-  deleteGroup: async () => null,
+  getTags: async () => [],
+  getTagById: async () => undefined,
+  updateTag: async () => null,
+  deleteTag: async () => null,
   getTimers: async () => [],
   getTimerById: async () => undefined,
   updateTimer: async () => null,
@@ -53,11 +53,10 @@ export function DatabaseProvider({ children }: PropsWithChildren) {
 
   const value = {
     db,
-    getGroups: async () => (db ? getGroups(db) : []),
-    getGroupById: async (id: number) => (db ? getGroupById(db, id) : undefined),
-    updateGroup: async (id: number, data: Partial<Group>) =>
-      db ? updateGroup(db, id, data) : null,
-    deleteGroup: async (id: number) => (db ? deleteGroup(db, id) : null),
+    getTags: async () => (db ? getTags(db) : []),
+    getTagById: async (id: number) => (db ? getTagById(db, id) : undefined),
+    updateTag: async (id: number, data: Partial<Tag>) => (db ? updateTag(db, id, data) : null),
+    deleteTag: async (id: number) => (db ? deleteTag(db, id) : null),
     getTimers: async () => (db ? getTimers(db) : []),
     getTimerById: async (id: number) => (db ? getTimerById(db, id) : undefined),
     updateTimer: async (id: number, data: Partial<Timer>) =>

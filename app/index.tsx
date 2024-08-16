@@ -4,26 +4,31 @@ import { ScrollView, View } from "react-native";
 
 import { useMigrationHelper } from "@/db/drizzle";
 import { useDatabase } from "@/db/provider";
-import { Timer } from "@/db/schema";
+import { Tag, Timer } from "@/db/schema";
 
+import TimerCard from "@/components/timer-card";
+import TimerForm from "@/components/timer-form";
 import { Text } from "@/components/ui/text";
 import { H1 } from "@/components/ui/typography";
 
 export default function HomeScreen() {
+  const [tags, setTags] = useState<Tag[] | null>(null);
   const [timers, setTimers] = useState<Timer[] | null>(null);
 
   const scrollRef = useRef<ScrollView>(null);
 
-  const { db, getTimers } = useDatabase();
+  const { db, getTags, getTimers } = useDatabase();
   const { success, error } = useMigrationHelper();
   // useDrizzleStudio(expoDb);
 
   useEffect(() => {
     if (!db) return;
 
+    getTags().then((items) => setTags(items));
     getTimers().then((items) => setTimers(items));
 
     return () => {
+      setTags(null);
       setTimers(null);
     };
   }, [db]);
@@ -43,12 +48,21 @@ export default function HomeScreen() {
     );
   }
 
+  const tt = {
+    title: "test",
+    id: 1,
+    tagId: 0,
+    duration: 6340,
+    isRunning: true,
+  };
+
   return (
-    <>
+    <View className="mx-auto w-full max-w-lg p-6">
+      <TimerCard timer={tt} />
       {timers && timers?.length > 0 ? (
         <ScrollView
           ref={scrollRef}
-          contentContainerClassName="p-6 mx-auto w-full max-w-xl"
+          contentContainerClassName=""
           showsVerticalScrollIndicator={false}
           automaticallyAdjustContentInsets={false}
           contentInset={{ top: 12 }}>
@@ -56,16 +70,16 @@ export default function HomeScreen() {
             <View className="mb-4 flex flex-col gap-4">
               <H1 className="mb-4">Timers</H1>
               {timers.map((timer) => (
-                <Text>{JSON.stringify(timers, null, 2)}</Text>
+                <Text key={timer.id}>{JSON.stringify(timers, null, 2)}</Text>
               ))}
             </View>
           </View>
         </ScrollView>
       ) : (
-        <View className="p-6">
-          <Text className="text-muted-foreground">No timers created yet.</Text>
+        <View>
+          <TimerForm tags={tags} />
         </View>
       )}
-    </>
+    </View>
   );
 }

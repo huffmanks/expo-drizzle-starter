@@ -2,29 +2,29 @@ import { eq } from "drizzle-orm";
 import { ExpoSQLiteDatabase } from "drizzle-orm/expo-sqlite";
 import { SQLJsDatabase } from "drizzle-orm/sql-js";
 
-import { group, Group, timer, Timer } from "./schema";
+import { tag, Tag, timer, Timer } from "./schema";
 
-export const getGroups = async (db: SQLJsDatabase | ExpoSQLiteDatabase): Promise<Group[]> => {
-  return db.select().from(group).all();
+export const getTags = async (db: SQLJsDatabase | ExpoSQLiteDatabase): Promise<Tag[]> => {
+  return db.select().from(tag).all();
 };
 
-export const getGroupById = async (
+export const getTagById = async (
   db: SQLJsDatabase | ExpoSQLiteDatabase,
   id: number
-): Promise<Group | undefined> => {
-  return db.select().from(group).where(eq(group.id, id)).get();
+): Promise<Tag | undefined> => {
+  return db.select().from(tag).where(eq(tag.id, id)).get();
 };
 
-export const updateGroup = async (
+export const updateTag = async (
   db: SQLJsDatabase | ExpoSQLiteDatabase,
   id: number,
-  data: Partial<Group>
+  data: Partial<Tag>
 ) => {
-  await db.update(group).set(data).where(eq(group.id, id));
+  await db.update(tag).set(data).where(eq(tag.id, id));
 };
 
-export const deleteGroup = async (db: SQLJsDatabase | ExpoSQLiteDatabase, id: number) => {
-  await db.delete(group).where(eq(group.id, id));
+export const deleteTag = async (db: SQLJsDatabase | ExpoSQLiteDatabase, id: number) => {
+  await db.delete(tag).where(eq(tag.id, id));
 };
 
 export const getTimers = async (db: SQLJsDatabase | ExpoSQLiteDatabase): Promise<Timer[]> => {

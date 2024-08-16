@@ -6,10 +6,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as z from "zod";
 
 import { useDatabase } from "@/db/provider";
-import { Group, timer } from "@/db/schema";
+import { Tag, timer } from "@/db/schema";
+import { Delete } from "@/lib/icons/Delete";
+import { Play } from "@/lib/icons/Play";
+import { cn, parseTimeInput } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormInput, FormSelect } from "@/components/ui/form";
+import { Form, FormField, FormInput, FormItem, FormSelect } from "@/components/ui/form";
 import {
   SelectContent,
   SelectGroup,
@@ -19,22 +22,21 @@ import {
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { H2 } from "@/components/ui/typography";
-import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   title: z.string().optional(),
-  groupId: z.object(
-    { value: z.string(), label: z.string() },
-    {
-      invalid_type_error: "Please select a group.",
-    }
-  ),
-  duration: z.string().min(1, {
-    message: "You must have a duration for the timer.",
-  }),
+  tagId: z.object({ value: z.string(), label: z.string() }),
+  duration: z
+    .string()
+    .min(1, {
+      message: "You must have a duration for the timer.",
+    })
+    .max(6, {
+      message: "Max of 6 digits for the timer.",
+    }),
 });
 
-export default function TimerForm({ groups }: { groups: Group[] }) {
+export default function TimerForm({ tags }: { tags: Tag[] | null }) {
   const [selectTriggerWidth, setSelectTriggerWidth] = useState(0);
 
   const { db } = useDatabase();
@@ -44,9 +46,9 @@ export default function TimerForm({ groups }: { groups: Group[] }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      groupId: {
-        value: "",
-        label: "",
+      tagId: {
+        value: "0",
+        label: "Untitled",
       },
       duration: "",
     },
@@ -59,105 +61,164 @@ export default function TimerForm({ groups }: { groups: Group[] }) {
     right: 12,
   };
 
+  function handleChange(val: string) {
+    let value = val.replace(/\D/g, "");
+    if (value.length > 6) value = value.slice(0, 6);
+
+    let formattedTime = value.padStart(6, "0");
+    formattedTime = formattedTime.replace(/(\d{2})(\d{2})(\d{2})/, "$1h $2m $3s");
+
+    console.log(formattedTime);
+    return formattedTime;
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (db) {
+      const duration = parseTimeInput(values.duration);
+
       await db.insert(timer).values({
         ...values,
-        groupId: Number(values.groupId.value),
-        duration: Number(values.duration),
+        tagId: Number(values.tagId.value),
+        duration,
       });
     }
-    console.log(JSON.stringify(values, null, 2));
     form.reset();
   }
 
-  const transformedGroups = groups.map((group) => ({
-    value: group.id.toString(),
-    label: group.title,
-  }));
+  const transformedTags =
+    tags && tags.length > 0
+      ? tags.map((tag) => ({
+          value: tag.id.toString(),
+          label: tag.title,
+        }))
+      : [
+          {
+            value: "0",
+            label: "Untitled",
+          },
+        ];
 
   return (
     <Form {...form}>
-      <H2 className="mb-4">Timer Form</H2>
-      <View className="mb-8 gap-7">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormInput
-              label="Title"
-              placeholder="Name this thing"
-              description="You can change this later."
-              autoCapitalize="none"
-              {...field}
-              value={field.value ?? "Untitled"}
-            />
-          )}
-        />
+      <H2 className="mb-8">Create timer</H2>
+      <View className="mb-8">
+        <View className="mb-6 gap-7">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormInput
+                label="Title"
+                placeholder="Name this thing"
+                description="You can change this later."
+                autoCapitalize="none"
+                {...field}
+                value={field.value ?? "Untitled"}
+              />
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="groupId"
-          render={({ field }) => (
-            <FormSelect
-              label="Group"
-              description="Pick a group for the timer."
-              {...field}>
-              <SelectTrigger
-                onLayout={(ev) => {
-                  setSelectTriggerWidth(ev.nativeEvent.layout.width);
-                }}>
-                <SelectValue
-                  className={cn(
-                    "native:text-lg text-sm",
-                    field.value ? "text-foreground" : "text-muted-foreground"
-                  )}
-                  placeholder="Select a group."
+          <FormField
+            control={form.control}
+            name="tagId"
+            render={({ field }) => (
+              <FormSelect
+                label="Tag"
+                description="Pick a tag for the timer."
+                {...field}>
+                <SelectTrigger
+                  onLayout={(ev) => {
+                    setSelectTriggerWidth(ev.nativeEvent.layout.width);
+                  }}>
+                  <SelectValue
+                    className={cn(
+                      "native:text-lg text-sm",
+                      field.value ? "text-foreground" : "text-muted-foreground"
+                    )}
+                    placeholder="Select a tag."
+                  />
+                </SelectTrigger>
+                <SelectContent
+                  insets={contentInsets}
+                  style={{ width: selectTriggerWidth }}>
+                  <SelectGroup>
+                    {transformedTags.map((tag) => (
+                      <SelectItem
+                        key={tag.value}
+                        label={tag.label}
+                        value={tag.value}>
+                        <Text>{tag.label}</Text>
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </FormSelect>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="duration"
+            render={({ field }) => (
+              <FormItem>
+                <FormInput
+                  aria-hidden={true}
+                  label="Duration"
+                  readOnly
+                  {...field}
+                  style={{ marginTop: -8 }}
+                  className="invisible m-0 hidden h-0 select-none p-0 opacity-0"
                 />
-              </SelectTrigger>
-              <SelectContent
-                insets={contentInsets}
-                style={{ width: selectTriggerWidth }}>
-                <SelectGroup>
-                  {transformedGroups.map((group) => (
-                    <SelectItem
-                      key={group.value}
-                      label={group.label}
-                      value={group.value}>
-                      <Text>{group.label}</Text>
-                    </SelectItem>
+                <View className="rounded-md bg-muted px-6 py-4 focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0">
+                  <Text className="text-xl">{handleChange(field.value)}</Text>
+                </View>
+                <View className="mx-auto grid max-w-xs grid-cols-3 place-items-center gap-4 pt-6">
+                  {Array.from({ length: 9 }, (_, i) => (
+                    <Button
+                      key={i + 1}
+                      className="size-24 items-center justify-center rounded-full bg-teal-600"
+                      onPress={() => field.onChange((field.value || "") + (i + 1).toString())}>
+                      <Text className="text-4xl text-foreground">{i + 1}</Text>
+                    </Button>
                   ))}
-                </SelectGroup>
-              </SelectContent>
-            </FormSelect>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="duration"
-          render={({ field }) => (
-            <FormInput
-              label="Duration"
-              placeholder="60"
-              description="Enter a duration for the timer."
-              {...field}
-            />
-          )}
-        />
-
-        <View className="flex flex-row items-center gap-4">
-          <Button
-            variant="secondary"
-            onPress={() => {
-              form.reset();
-            }}>
-            <Text>Clear</Text>
-          </Button>
-          <Button onPress={form.handleSubmit(onSubmit)}>
-            <Text>Submit</Text>
-          </Button>
+                  <Button
+                    className="size-24 items-center justify-center rounded-full bg-teal-600"
+                    onPress={() => field.onChange((field.value || "") + "00")}>
+                    <Text className="text-4xl text-foreground">00</Text>
+                  </Button>
+                  <Button
+                    className="size-24 items-center justify-center rounded-full bg-teal-600"
+                    onPress={() => field.onChange((field.value || "") + "0")}>
+                    <Text className="text-4xl text-foreground">0</Text>
+                  </Button>
+                  <Button
+                    className="size-24 items-center justify-center rounded-full bg-teal-800"
+                    onPress={() => field.onChange(field.value?.slice(0, -1))}>
+                    <Delete
+                      className="mr-0.5 text-foreground"
+                      size={36}
+                      strokeWidth={1.75}
+                    />
+                  </Button>
+                </View>
+              </FormItem>
+            )}
+          />
         </View>
+
+        {true && (
+          <View className="mx-auto mb-8">
+            <Button
+              className="size-24 items-center justify-center rounded-full bg-teal-400"
+              onPress={form.handleSubmit(onSubmit)}>
+              <Play
+                className="text-foreground"
+                size={36}
+                strokeWidth={1.75}
+              />
+            </Button>
+          </View>
+        )}
       </View>
     </Form>
   );

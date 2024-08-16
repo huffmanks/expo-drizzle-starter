@@ -3,30 +3,30 @@ import { AnySQLiteColumn, integer, sqliteTable, text } from "drizzle-orm/sqlite-
 import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const group = sqliteTable("groups", {
+export const tag = sqliteTable("tags", {
   id: integer("id").primaryKey(),
   title: text("title").notNull(),
 });
 
-export const groupRelations = relations(group, ({ many }) => ({
+export const tagRelations = relations(tag, ({ many }) => ({
   timers: many(timer),
 }));
 
-export const GroupSchema = createSelectSchema(group);
-export type Group = z.infer<typeof GroupSchema>;
+export const TagSchema = createSelectSchema(tag);
+export type Tag = z.infer<typeof TagSchema>;
 
 export const timer = sqliteTable("timers", {
   id: integer("id").primaryKey(),
-  groupId: integer("group_id")
+  tagId: integer("tag_id")
     .notNull()
-    .references((): AnySQLiteColumn => group.id, { onDelete: "cascade" }),
-  title: text("title").default("Untitled"),
+    .references((): AnySQLiteColumn => tag.id, { onDelete: "cascade" }),
+  title: text("title").default("Untitled").notNull(),
   duration: integer("duration").notNull(),
-  isRunning: integer("is_running", { mode: "boolean" }).default(true),
+  isRunning: integer("is_running", { mode: "boolean" }).default(true).notNull(),
 });
 
 export const timerRelations = relations(timer, ({ one }) => ({
-  group: one(group, { fields: [timer.groupId], references: [group.id] }),
+  tag: one(tag, { fields: [timer.tagId], references: [tag.id] }),
 }));
 
 export const TimerSchema = createSelectSchema(timer);

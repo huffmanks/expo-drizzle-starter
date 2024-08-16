@@ -12,7 +12,7 @@ import { DatabaseProvider } from "@/db/provider";
 import { NAV_THEME } from "@/lib/constants";
 import { useColorScheme } from "@/lib/useColorScheme";
 
-import { ThemeToggle } from "@/components/theme-toggle";
+import Navbar from "@/components/navbar";
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -63,14 +63,10 @@ export default function RootLayout() {
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <DatabaseProvider>
         <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-        <Stack>
-          <Stack.Screen
-            name="(tabs)"
-            options={{
-              title: "Timer App",
-              headerRight: () => <ThemeToggle />,
-            }}
-          />
+        <Stack screenOptions={{ header: () => <Navbar /> }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="tags" />
+          <Stack.Screen name="add" />
         </Stack>
         <PortalHost />
       </DatabaseProvider>
