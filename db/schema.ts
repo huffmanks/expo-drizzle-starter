@@ -20,10 +20,9 @@ export const timer = sqliteTable("timers", {
   groupId: integer("group_id")
     .notNull()
     .references((): AnySQLiteColumn => group.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
+  title: text("title").default("Untitled"),
   duration: integer("duration").notNull(),
-  endTime: integer("end_time").default(0),
-  isRunning: integer("is_running", { mode: "boolean" }).default(false),
+  isRunning: integer("is_running", { mode: "boolean" }).default(true),
 });
 
 export const timerRelations = relations(timer, ({ one }) => ({

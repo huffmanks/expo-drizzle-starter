@@ -1,20 +1,51 @@
-import { db } from "./drizzle";
-import { group, timer } from "./schema";
+import { eq } from "drizzle-orm";
+import { ExpoSQLiteDatabase } from "drizzle-orm/expo-sqlite";
+import { SQLJsDatabase } from "drizzle-orm/sql-js";
 
-// const db = drizzle(client, { schema });
+import { group, Group, timer, Timer } from "./schema";
 
-export async function getGroups() {
+export const getGroups = async (db: SQLJsDatabase | ExpoSQLiteDatabase): Promise<Group[]> => {
   return db.select().from(group).all();
-}
+};
 
-export async function createGroup() {
-  return db.insert(group).values({ title: "Test Group" });
-}
+export const getGroupById = async (
+  db: SQLJsDatabase | ExpoSQLiteDatabase,
+  id: number
+): Promise<Group | undefined> => {
+  return db.select().from(group).where(eq(group.id, id)).get();
+};
 
-export async function getTimers() {
+export const updateGroup = async (
+  db: SQLJsDatabase | ExpoSQLiteDatabase,
+  id: number,
+  data: Partial<Group>
+) => {
+  await db.update(group).set(data).where(eq(group.id, id));
+};
+
+export const deleteGroup = async (db: SQLJsDatabase | ExpoSQLiteDatabase, id: number) => {
+  await db.delete(group).where(eq(group.id, id));
+};
+
+export const getTimers = async (db: SQLJsDatabase | ExpoSQLiteDatabase): Promise<Timer[]> => {
   return db.select().from(timer).all();
-}
+};
 
-export async function createTimer() {
-  return db.insert(timer).values({ groupId: 1, title: "Test Timer", duration: 60 });
-}
+export const getTimerById = async (
+  db: SQLJsDatabase | ExpoSQLiteDatabase,
+  id: number
+): Promise<Timer | undefined> => {
+  return db.select().from(timer).where(eq(timer.id, id)).get();
+};
+
+export const updateTimer = async (
+  db: SQLJsDatabase | ExpoSQLiteDatabase,
+  id: number,
+  data: Partial<Timer>
+) => {
+  await db.update(timer).set(data).where(eq(timer.id, id));
+};
+
+export const deleteTimer = async (db: SQLJsDatabase | ExpoSQLiteDatabase, id: number) => {
+  await db.delete(timer).where(eq(timer.id, id));
+};

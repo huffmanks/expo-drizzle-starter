@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as React from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import * as z from "zod";
@@ -38,7 +37,7 @@ export default function GroupForm() {
 
   return (
     <Form {...form}>
-      <H2 className="mb-4">Group Form</H2>
+      <H2 className="mb-4">Add group</H2>
       <View className="mb-8 gap-7">
         <FormField
           control={form.control}
@@ -54,23 +53,16 @@ export default function GroupForm() {
           )}
         />
 
-        <Button onPress={form.handleSubmit(onSubmit)}>
-          <Text>Submit</Text>
-        </Button>
-        <View>
+        <View className="flex flex-row items-center gap-4">
           <Button
-            variant="ghost"
-            onPress={() => {
-              form.clearErrors();
-            }}>
-            <Text>Clear errors</Text>
-          </Button>
-          <Button
-            variant="ghost"
+            variant="secondary"
             onPress={() => {
               form.reset();
             }}>
-            <Text>Clear form values</Text>
+            <Text>Clear</Text>
+          </Button>
+          <Button onPress={form.handleSubmit(onSubmit)}>
+            <Text>Submit</Text>
           </Button>
         </View>
       </View>

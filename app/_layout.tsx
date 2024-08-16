@@ -5,13 +5,14 @@ import { Theme, ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import * as React from "react";
+import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 
-import { ThemeToggle } from "@/components/theme-toggle";
 import { DatabaseProvider } from "@/db/provider";
 import { NAV_THEME } from "@/lib/constants";
 import { useColorScheme } from "@/lib/useColorScheme";
+
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -28,9 +29,9 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
-  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       const theme = await AsyncStorage.getItem("theme");
       if (Platform.OS === "web") {
@@ -64,9 +65,9 @@ export default function RootLayout() {
         <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
         <Stack>
           <Stack.Screen
-            name="index"
+            name="(tabs)"
             options={{
-              title: "Expo Drizzle Starter",
+              title: "Timer App",
               headerRight: () => <ThemeToggle />,
             }}
           />

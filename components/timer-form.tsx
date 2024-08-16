@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as React from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,7 +9,7 @@ import { useDatabase } from "@/db/provider";
 import { Group, timer } from "@/db/schema";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormField, FormInput, FormSelect, FormSwitch } from "@/components/ui/form";
+import { Form, FormField, FormInput, FormSelect } from "@/components/ui/form";
 import {
   SelectContent,
   SelectGroup,
@@ -22,9 +22,7 @@ import { H2 } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
+  title: z.string().optional(),
   groupId: z.object(
     { value: z.string(), label: z.string() },
     {
@@ -34,11 +32,10 @@ const formSchema = z.object({
   duration: z.string().min(1, {
     message: "You must have a duration for the timer.",
   }),
-  isRunning: z.boolean(),
 });
 
 export default function TimerForm({ groups }: { groups: Group[] }) {
-  const [selectTriggerWidth, setSelectTriggerWidth] = React.useState(0);
+  const [selectTriggerWidth, setSelectTriggerWidth] = useState(0);
 
   const { db } = useDatabase();
   const insets = useSafeAreaInsets();
@@ -47,7 +44,11 @@ export default function TimerForm({ groups }: { groups: Group[] }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      isRunning: false,
+      groupId: {
+        value: "",
+        label: "",
+      },
+      duration: "",
     },
   });
 
@@ -89,6 +90,7 @@ export default function TimerForm({ groups }: { groups: Group[] }) {
               description="You can change this later."
               autoCapitalize="none"
               {...field}
+              value={field.value ?? "Untitled"}
             />
           )}
         />
@@ -144,35 +146,16 @@ export default function TimerForm({ groups }: { groups: Group[] }) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="isRunning"
-          render={({ field }) => (
-            <FormSwitch
-              label="Start now"
-              description="Do you want to start the timer now?"
-              {...field}
-            />
-          )}
-        />
-
-        <Button onPress={form.handleSubmit(onSubmit)}>
-          <Text>Submit</Text>
-        </Button>
-        <View>
+        <View className="flex flex-row items-center gap-4">
           <Button
-            variant="ghost"
-            onPress={() => {
-              form.clearErrors();
-            }}>
-            <Text>Clear errors</Text>
-          </Button>
-          <Button
-            variant="ghost"
+            variant="secondary"
             onPress={() => {
               form.reset();
             }}>
-            <Text>Clear form values</Text>
+            <Text>Clear</Text>
+          </Button>
+          <Button onPress={form.handleSubmit(onSubmit)}>
+            <Text>Submit</Text>
           </Button>
         </View>
       </View>
