@@ -8,6 +8,7 @@ CREATE TABLE `timers` (
 	`tag_id` integer NOT NULL,
 	`title` text DEFAULT 'Untitled' NOT NULL,
 	`duration` integer NOT NULL,
+	`time_remaining` integer NOT NULL,
 	`is_running` integer DEFAULT true NOT NULL,
 	FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON UPDATE no action ON DELETE cascade
 );

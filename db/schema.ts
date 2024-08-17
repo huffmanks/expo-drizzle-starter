@@ -22,6 +22,7 @@ export const timer = sqliteTable("timers", {
     .references((): AnySQLiteColumn => tag.id, { onDelete: "cascade" }),
   title: text("title").default("Untitled").notNull(),
   duration: integer("duration").notNull(),
+  timeRemaining: integer("time_remaining").notNull(),
   isRunning: integer("is_running", { mode: "boolean" }).default(true).notNull(),
 });
 

@@ -68,7 +68,6 @@ export default function TimerForm({ tags }: { tags: Tag[] | null }) {
     let formattedTime = value.padStart(6, "0");
     formattedTime = formattedTime.replace(/(\d{2})(\d{2})(\d{2})/, "$1h $2m $3s");
 
-    console.log(formattedTime);
     return formattedTime;
   }
 
@@ -80,6 +79,7 @@ export default function TimerForm({ tags }: { tags: Tag[] | null }) {
         ...values,
         tagId: Number(values.tagId.value),
         duration,
+        timeRemaining: duration,
       });
     }
     form.reset();

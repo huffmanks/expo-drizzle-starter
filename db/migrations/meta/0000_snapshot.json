@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "7fe31b93-b5cf-485d-ad08-355a579a50be",
+  "id": "dfab8a2c-7ebb-4657-a011-12f49149a1b5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "tags": {
@@ -54,6 +54,13 @@
         },
         "duration": {
           "name": "duration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "time_remaining": {
+          "name": "time_remaining",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,

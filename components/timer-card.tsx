@@ -1,7 +1,9 @@
 import { View } from "react-native";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 
-import { Pause, TimerReset, X } from "@/lib/icons";
+import { Pause } from "@/lib/icons/Pause";
+import { TimerReset } from "@/lib/icons/TimerReset";
+import { X } from "@/lib/icons/X";
 import { formatColonTime, formatLabelTime } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
