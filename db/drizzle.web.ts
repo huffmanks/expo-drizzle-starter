@@ -1,15 +1,15 @@
-import { SQLJsDatabase, drizzle } from "drizzle-orm/sql-js";
+import { drizzle, type SQLJsDatabase } from "drizzle-orm/sql-js";
 import { useEffect, useReducer } from "react";
 import initSqlJs from "sql.js";
 
-import { useDatabase } from "./provider";
+import { useDatabase } from "@/db/provider";
 
 export const initialize = async (): Promise<SQLJsDatabase> => {
+  console.log("initialze web");
   const sqlPromise = initSqlJs({
     locateFile: (file) => `https://sql.js.org/dist/${file}`,
   });
-
-  const dataPromise = fetch("/timer.sqlite").then((res) => res.arrayBuffer());
+  const dataPromise = fetch("./database.sqlite").then((res) => res.arrayBuffer());
   const [SQL, buf] = await Promise.all([sqlPromise, dataPromise]);
   const sqldb = new SQL.Database(new Uint8Array(buf));
   const db = drizzle(sqldb);
@@ -21,7 +21,10 @@ interface State {
   error?: Error;
 }
 
-type Action = { type: "migrating" } | { type: "migrated"; payload: true } | { type: "error"; payload: Error };
+type Action =
+  | { type: "migrating" }
+  | { type: "migrated"; payload: true }
+  | { type: "error"; payload: Error };
 
 export const useMigrationHelper = (): State => {
   const { db } = useDatabase();

@@ -42,7 +42,10 @@ function Badge({ className, variant, asChild, ...props }: BadgeProps) {
   const Component = asChild ? Slot.View : View;
   return (
     <TextClassContext.Provider value={badgeTextVariants({ variant })}>
-      <Component className={cn(badgeVariants({ variant }), className)} {...props} />
+      <Component
+        className={cn(badgeVariants({ variant }), className)}
+        {...props}
+      />
     </TextClassContext.Provider>
   );
 }

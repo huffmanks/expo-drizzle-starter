@@ -1,15 +1,14 @@
 import { Link } from "expo-router";
 import { View } from "react-native";
 
-import { AlarmClock } from "@/lib/icons/AlarmClock";
-import { Plus } from "@/lib/icons/Plus";
+import { AlarmClock, Plus } from "@/lib/icons";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Text } from "@/components/ui/text";
 
 export default function Navbar() {
   return (
-    <View className="flex-1 flex-row items-center justify-between gap-4 border-b border-muted px-5">
+    <View className="w-full flex-row items-center justify-between gap-4 px-5">
       <View className="flex-row items-center justify-center gap-4">
         <View className="flex-row items-center justify-center gap-2">
           <View className="aspect-square items-center justify-center">
@@ -37,7 +36,7 @@ export default function Navbar() {
           </View>
         </Link>
       </View>
-      <View>
+      <View className="w-[63px]">
         <ThemeToggle />
       </View>
     </View>

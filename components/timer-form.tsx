@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -7,9 +8,9 @@ import * as z from "zod";
 
 import { useDatabase } from "@/db/provider";
 import { Tag, timer } from "@/db/schema";
-import { Delete } from "@/lib/icons/Delete";
-import { Play } from "@/lib/icons/Play";
-import { cn, parseTimeInput } from "@/lib/utils";
+import { handleDurationDisplay, parseTimeInput } from "@/lib/formatTime";
+import { Delete, Play } from "@/lib/icons";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormInput, FormItem, FormSelect } from "@/components/ui/form";
@@ -36,20 +37,25 @@ const formSchema = z.object({
     }),
 });
 
-export default function TimerForm({ tags }: { tags: Tag[] | null }) {
+interface TimerFormProps {
+  tags: Tag[] | null;
+}
+
+export default function TimerForm({ tags }: TimerFormProps) {
   const [selectTriggerWidth, setSelectTriggerWidth] = useState(0);
 
   const { db } = useDatabase();
+  const router = useRouter();
   const insets = useSafeAreaInsets();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      tagId: {
-        value: "0",
-        label: "Untitled",
-      },
+      title: "Untitled",
+      // tagId: {
+      //   value: "0",
+      //   label: "Untitled",
+      // },
       duration: "",
     },
   });
@@ -61,34 +67,34 @@ export default function TimerForm({ tags }: { tags: Tag[] | null }) {
     right: 12,
   };
 
-  function handleChange(val: string) {
-    let value = val.replace(/\D/g, "");
-    if (value.length > 6) value = value.slice(0, 6);
-
-    let formattedTime = value.padStart(6, "0");
-    formattedTime = formattedTime.replace(/(\d{2})(\d{2})(\d{2})/, "$1h $2m $3s");
-
-    return formattedTime;
-  }
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (db) {
+    try {
       const duration = parseTimeInput(values.duration);
 
-      await db.insert(timer).values({
-        ...values,
-        tagId: Number(values.tagId.value),
-        duration,
-        timeRemaining: duration,
-      });
+      await db
+        ?.insert(timer)
+        .values({
+          ...values,
+          tagId: values.tagId.value,
+          duration,
+          timeRemaining: duration,
+        })
+        .returning();
+
+      router.replace("/");
+    } catch (e) {
+      console.error(e);
     }
+
     form.reset();
   }
+
+  const durationExists = form.watch("duration") !== "";
 
   const transformedTags =
     tags && tags.length > 0
       ? tags.map((tag) => ({
-          value: tag.id.toString(),
+          value: tag.id,
           label: tag.title,
         }))
       : [
@@ -170,9 +176,9 @@ export default function TimerForm({ tags }: { tags: Tag[] | null }) {
                   className="invisible m-0 hidden h-0 select-none p-0 opacity-0"
                 />
                 <View className="rounded-md bg-muted px-6 py-4 focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0">
-                  <Text className="text-xl">{handleChange(field.value)}</Text>
+                  <Text className="text-xl">{handleDurationDisplay(field.value)}</Text>
                 </View>
-                <View className="mx-auto grid max-w-xs grid-cols-3 place-items-center gap-4 pt-6">
+                <View className="mx-auto max-w-sm flex-row flex-wrap gap-4 pt-6">
                   {Array.from({ length: 9 }, (_, i) => (
                     <Button
                       key={i + 1}
@@ -206,7 +212,7 @@ export default function TimerForm({ tags }: { tags: Tag[] | null }) {
           />
         </View>
 
-        {true && (
+        {durationExists && (
           <View className="mx-auto mb-8">
             <Button
               className="size-24 items-center justify-center rounded-full bg-teal-400"

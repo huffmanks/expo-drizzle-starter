@@ -1,10 +1,13 @@
+import { createId } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import { AnySQLiteColumn, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createSelectSchema } from "drizzle-zod";
-import { z } from "zod";
+import type { z } from "zod";
 
 export const tag = sqliteTable("tags", {
-  id: integer("id").primaryKey(),
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
   title: text("title").notNull(),
 });
 
@@ -16,8 +19,10 @@ export const TagSchema = createSelectSchema(tag);
 export type Tag = z.infer<typeof TagSchema>;
 
 export const timer = sqliteTable("timers", {
-  id: integer("id").primaryKey(),
-  tagId: integer("tag_id")
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  tagId: text("tag_id")
     .notNull()
     .references((): AnySQLiteColumn => tag.id, { onDelete: "cascade" }),
   title: text("title").default("Untitled").notNull(),

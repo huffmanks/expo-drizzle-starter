@@ -1,27 +1,24 @@
-import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { ScrollView } from "react-native";
 
 import { useDatabase } from "@/db/provider";
-import { Tag } from "@/db/schema";
+import { tag } from "@/db/schema";
 
 import TimerForm from "@/components/timer-form";
 
 export default function AddScreen() {
-  const [tags, setTags] = useState<Tag[] | null>(null);
+  const { db } = useDatabase();
+  // @ts-expect-error
+  const { data: tags } = useLiveQuery(db?.select().from(tag));
 
-  const { db, getTags } = useDatabase();
-
-  useEffect(() => {
-    if (db) {
-      getTags().then((items) => setTags(items));
-    }
-    return () => {
-      setTags(null);
-    };
-  }, [db]);
   return (
-    <View className="mx-auto w-full max-w-lg p-6">
+    <ScrollView
+      contentContainerClassName="mx-auto w-full max-w-lg p-6"
+      showsVerticalScrollIndicator={true}
+      className="bg-background"
+      automaticallyAdjustContentInsets={false}
+      contentInset={{ top: 12 }}>
       <TimerForm tags={tags} />
-    </View>
+    </ScrollView>
   );
 }

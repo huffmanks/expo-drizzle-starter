@@ -1,85 +1,104 @@
-// import { useDrizzleStudio } from "expo-drizzle-studio-plugin";
-import { useEffect, useRef, useState } from "react";
+import { useScrollToTop } from "@react-navigation/native";
+import { FlashList } from "@shopify/flash-list";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useCallback, useRef } from "react";
 import { ScrollView, View } from "react-native";
 
 import { useMigrationHelper } from "@/db/drizzle";
 import { useDatabase } from "@/db/provider";
-import { Tag, Timer } from "@/db/schema";
+import { tag, timer, Timer } from "@/db/schema";
 
+import ErrorMessage from "@/components/error-message";
 import TimerCard from "@/components/timer-card";
 import TimerForm from "@/components/timer-form";
-import { Text } from "@/components/ui/text";
-import { H1 } from "@/components/ui/typography";
+import { eq } from "drizzle-orm";
+import { Alert } from "react-native";
 
 export default function HomeScreen() {
-  const [tags, setTags] = useState<Tag[] | null>(null);
-  const [timers, setTimers] = useState<Timer[] | null>(null);
-
-  const scrollRef = useRef<ScrollView>(null);
-
-  const { db, getTags, getTimers } = useDatabase();
   const { success, error } = useMigrationHelper();
-  // useDrizzleStudio(expoDb);
-
-  useEffect(() => {
-    if (!db) return;
-
-    getTags().then((items) => setTags(items));
-    getTimers().then((items) => setTimers(items));
-
-    return () => {
-      setTags(null);
-      setTimers(null);
-    };
-  }, [db]);
 
   if (error) {
     return (
-      <View className="flex-1 gap-5 bg-secondary/30 p-6">
-        <Text>Migration error: {error.message}</Text>
-      </View>
+      <ErrorMessage
+        message="Migration error:"
+        errorMessage={error.message}
+      />
     );
   }
   if (!success) {
-    return (
-      <View className="flex-1 gap-5 bg-secondary/30 p-6">
-        <Text>Migration is in progress...</Text>
-      </View>
-    );
+    return <ErrorMessage message="Migration is in progress..." />;
   }
 
-  const tt = {
-    title: "test",
-    id: 1,
-    tagId: 0,
-    duration: 6340,
-    isRunning: true,
-  };
+  return <ScreenContent />;
+}
+function ScreenContent() {
+  const { db } = useDatabase();
+
+  // @ts-expect-error
+  const { data: timers, error: timersError } = useLiveQuery(db?.select().from(timer));
+  // @ts-expect-error
+  const { data: tags, error: tagsError } = useLiveQuery(db?.select().from(tag));
+
+  const ref = useRef(null);
+  useScrollToTop(ref);
+
+  const renderItem = useCallback(
+    ({ item, index }: { item: Timer; index: number }) => (
+      <TimerCard
+        item={item}
+        handleDeleteTimer={handleDeleteTimer}
+      />
+    ),
+    []
+  );
+
+  if (tagsError || timersError) {
+    return <ErrorMessage message="Error loading data." />;
+  }
+
+  async function handleDeleteTimer(timerId: string) {
+    Alert.alert("Are you absolutely sure?", "Are you sure you want to delete this timer?", [
+      {
+        text: "Cancel",
+      },
+      {
+        text: "Delete",
+        onPress: async () => {
+          try {
+            await db?.delete(timer).where(eq(timer.id, timerId)).execute();
+          } catch (error) {
+            console.error("error", error);
+          }
+        },
+        style: "destructive",
+      },
+    ]);
+  }
 
   return (
-    <View className="mx-auto w-full max-w-lg p-6">
-      <TimerCard timer={tt} />
-      {timers && timers?.length > 0 ? (
-        <ScrollView
-          ref={scrollRef}
-          contentContainerClassName=""
+    <ScrollView
+      contentContainerClassName="mx-auto w-full max-w-lg p-6"
+      showsVerticalScrollIndicator={true}
+      className="bg-background"
+      automaticallyAdjustContentInsets={false}
+      contentInset={{ top: 12 }}>
+      <View className="min-h-1">
+        <FlashList
+          ref={ref}
+          className="native:overflow-hidden rounded-t-lg"
+          estimatedItemSize={10}
           showsVerticalScrollIndicator={false}
-          automaticallyAdjustContentInsets={false}
-          contentInset={{ top: 12 }}>
-          <View className="flex-1 items-center justify-center gap-5 bg-secondary/30 p-6">
-            <View className="mb-4 flex flex-col gap-4">
-              <H1 className="mb-4">Timers</H1>
-              {timers.map((timer) => (
-                <Text key={timer.id}>{JSON.stringify(timers, null, 2)}</Text>
-              ))}
+          ListEmptyComponent={() => (
+            <View>
+              <TimerForm tags={tags} />
             </View>
-          </View>
-        </ScrollView>
-      ) : (
-        <View>
-          <TimerForm tags={tags} />
-        </View>
-      )}
-    </View>
+          )}
+          data={timers}
+          renderItem={renderItem}
+          keyExtractor={(timer) => `timer-${timer.id}`}
+          ItemSeparatorComponent={() => <View className="py-4" />}
+        />
+      </View>
+    </ScrollView>
   );
 }

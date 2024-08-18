@@ -1,18 +1,20 @@
 import "@/global.css";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Theme, ThemeProvider } from "@react-navigation/native";
-import { PortalHost } from "@rn-primitives/portal";
+import { ThemeProvider, type Theme } from "@react-navigation/native";
 import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { DatabaseProvider } from "@/db/provider";
+import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
 import { NAV_THEME } from "@/lib/constants";
 import { useColorScheme } from "@/lib/useColorScheme";
 
 import Navbar from "@/components/navbar";
+import { PortalHost } from "@/components/ui/portal";
 
 const LIGHT_THEME: Theme = {
   dark: false,
@@ -24,6 +26,10 @@ const DARK_THEME: Theme = {
 };
 
 export { ErrorBoundary } from "expo-router";
+
+export const unstable_settings = {
+  initialRouteName: "index",
+};
 
 SplashScreen.preventAutoHideAsync();
 
@@ -38,11 +44,13 @@ export default function RootLayout() {
         document.documentElement.classList.add("bg-background");
       }
       if (!theme) {
+        setAndroidNavigationBar(colorScheme);
         AsyncStorage.setItem("theme", colorScheme);
         setIsColorSchemeLoaded(true);
         return;
       }
       const colorTheme = theme === "dark" ? "dark" : "light";
+      setAndroidNavigationBar(colorTheme);
       if (colorTheme !== colorScheme) {
         setColorScheme(colorTheme);
 
@@ -60,16 +68,20 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+    <>
       <DatabaseProvider>
-        <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-        <Stack screenOptions={{ header: () => <Navbar /> }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="tags" />
-          <Stack.Screen name="add" />
-        </Stack>
-        <PortalHost />
+        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+          <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <Stack screenOptions={{ headerTitle: () => <Navbar />, headerBackVisible: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="tags" />
+              <Stack.Screen name="add" />
+            </Stack>
+          </GestureHandlerRootView>
+        </ThemeProvider>
       </DatabaseProvider>
-    </ThemeProvider>
+      <PortalHost />
+    </>
   );
 }

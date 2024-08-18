@@ -4,7 +4,10 @@ import * as CheckboxPrimitive from "@rn-primitives/checkbox";
 import * as React from "react";
 import { Platform } from "react-native";
 
-const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root>, React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>>(({ className, ...props }, ref) => {
+const Checkbox = React.forwardRef<
+  React.ElementRef<typeof CheckboxPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+>(({ className, ...props }, ref) => {
   return (
     <CheckboxPrimitive.Root
       ref={ref}
@@ -15,7 +18,11 @@ const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root
       )}
       {...props}>
       <CheckboxPrimitive.Indicator className={cn("h-full w-full items-center justify-center")}>
-        <Check size={12} strokeWidth={Platform.OS === "web" ? 2.5 : 3.5} className="text-primary-foreground" />
+        <Check
+          size={12}
+          strokeWidth={Platform.OS === "web" ? 2.5 : 3.5}
+          className="text-primary-foreground"
+        />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );

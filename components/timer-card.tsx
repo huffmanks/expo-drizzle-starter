@@ -1,36 +1,33 @@
 import { View } from "react-native";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 
-import { Pause } from "@/lib/icons/Pause";
-import { TimerReset } from "@/lib/icons/TimerReset";
-import { X } from "@/lib/icons/X";
-import { formatColonTime, formatLabelTime } from "@/lib/utils";
+import { Timer } from "@/db/schema";
+import { formatColonTime, formatLabelTime } from "@/lib/formatTime";
+import { Pause, TimerReset, X } from "@/lib/icons";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 
 interface TimerCardProps {
-  id: number;
-  tagId: number;
-  title: string;
-  duration: number;
-  isRunning: boolean;
+  item: Timer;
+  handleDeleteTimer: (id: string) => Promise<void>;
 }
 
-export default function TimerCard({ id, tagId, title, duration, isRunning }: TimerCardProps) {
-  const labelTime = formatLabelTime(duration);
+export default function TimerCard({ item, handleDeleteTimer }: TimerCardProps) {
+  const labelTime = formatLabelTime(item.duration);
   return (
-    <Card className="max-w-fit">
+    <Card className="mx-auto w-fit">
       <CardHeader>
         <View className="flex-row justify-between gap-4">
           <View>
-            <CardTitle>{title}</CardTitle>
+            <CardTitle>{item.title}</CardTitle>
             <CardDescription>{labelTime}</CardDescription>
           </View>
           <Button
             variant="secondary"
-            className="aspect-square items-center justify-center rounded-full">
+            className="aspect-square items-center justify-center rounded-full"
+            onPress={() => handleDeleteTimer(item.id)}>
             <X
               className="text-foreground"
               size={24}
@@ -42,8 +39,8 @@ export default function TimerCard({ id, tagId, title, duration, isRunning }: Tim
       <CardContent>
         <View className="flex-row justify-between gap-4">
           <CountdownCircleTimer
-            isPlaying={isRunning}
-            duration={duration}
+            isPlaying={item.isRunning}
+            duration={item.duration}
             colors="#14b8a6"
             strokeWidth={6}
             children={({ remainingTime }) => {

@@ -1,45 +1,96 @@
-import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { useScrollToTop } from "@react-navigation/native";
+import { FlashList } from "@shopify/flash-list";
+import { eq } from "drizzle-orm";
+import { useLiveQuery } from "drizzle-orm/expo-sqlite";
+import { useCallback, useRef } from "react";
+import { Alert, ScrollView, View } from "react-native";
 
 import { useDatabase } from "@/db/provider";
-import { Tag } from "@/db/schema";
+import { Tag, tag } from "@/db/schema";
 
+import ErrorMessage from "@/components/error-message";
+import ListItem from "@/components/list-item";
 import TagForm from "@/components/tag-form";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { H2 } from "@/components/ui/typography";
+import { H2, H3 } from "@/components/ui/typography";
 
 export default function TagsScreen() {
-  const [tags, setTags] = useState<Tag[] | null>(null);
+  const { db } = useDatabase();
+  // @ts-expect-error
+  const { data: tags, error } = useLiveQuery(db?.select().from(tag));
 
-  const { db, getTags } = useDatabase();
+  const ref = useRef(null);
+  useScrollToTop(ref);
 
-  useEffect(() => {
-    if (db) {
-      getTags().then((items) => setTags(items));
-    }
-    return () => {
-      setTags(null);
-    };
-  }, [db]);
+  const columnNumber = 2;
+
+  const renderItem = useCallback(
+    ({ item, index }: { item: Tag; index: number }) => (
+      <ListItem
+        index={index}
+        columnNumber={columnNumber}>
+        <Badge asChild>
+          <Button onPress={() => handleDeleteTag(item.id)}>
+            <Text>{item.title}</Text>
+          </Button>
+        </Badge>
+      </ListItem>
+    ),
+    []
+  );
+
+  if (error) {
+    return <ErrorMessage message="Error loading data." />;
+  }
+
+  async function handleDeleteTag(tagId: string) {
+    Alert.alert("Are you absolutely sure?", "Are you sure you want to delete this tag?", [
+      {
+        text: "Cancel",
+      },
+      {
+        text: "Delete",
+        onPress: async () => {
+          try {
+            await db?.delete(tag).where(eq(tag.id, tagId)).execute();
+          } catch (error) {
+            console.error("error", error);
+          }
+        },
+        style: "destructive",
+      },
+    ]);
+  }
 
   return (
-    <View className="mx-auto w-full max-w-lg p-6">
+    <ScrollView
+      contentContainerClassName="mx-auto w-full max-w-lg p-6"
+      showsVerticalScrollIndicator={true}
+      className="bg-background"
+      automaticallyAdjustContentInsets={false}
+      contentInset={{ top: 12 }}>
       <H2 className="mb-8">Tags</H2>
       <TagForm />
 
-      {tags && tags?.length > 0 && (
-        <View className="flex-row flex-wrap gap-2">
-          {tags.map((tag) => (
-            <Badge key={tag.id}>
-              <Text>{tag.title}</Text>
-            </Badge>
-          ))}
-        </View>
-      )}
-
-      {!tags ||
-        (tags?.length < 1 && <Text className="text-muted-foreground">No tags created yet.</Text>)}
-    </View>
+      <View className="min-h-1">
+        <FlashList
+          ref={ref}
+          className="native:overflow-hidden rounded-t-lg"
+          estimatedItemSize={2}
+          horizontal={false}
+          numColumns={columnNumber}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={() => <H3 className="mb-2">Current tags</H3>}
+          ListEmptyComponent={() => (
+            <Text className="text-muted-foreground">No tags created yet.</Text>
+          )}
+          data={tags}
+          renderItem={renderItem}
+          keyExtractor={(item) => `tag-${item.id}`}
+        />
+      </View>
+    </ScrollView>
   );
 }

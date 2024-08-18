@@ -35,7 +35,7 @@ export default function TagForm() {
 
   return (
     <Form {...form}>
-      <View className="mb-8 flex-row items-end gap-2">
+      <View className="mb-8 flex-1 flex-row items-end gap-2">
         <FormField
           control={form.control}
           name="title"
