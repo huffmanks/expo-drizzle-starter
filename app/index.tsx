@@ -1,18 +1,17 @@
 import { useScrollToTop } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
+import { eq } from "drizzle-orm";
 import { useLiveQuery } from "drizzle-orm/expo-sqlite";
 import { useCallback, useRef } from "react";
 import { ScrollView, View } from "react-native";
 
 import { useMigrationHelper } from "@/db/drizzle";
 import { useDatabase } from "@/db/provider";
-import { tag, timer, Timer } from "@/db/schema";
+import { Timer, tag, timer } from "@/db/schema";
 
 import ErrorMessage from "@/components/error-message";
-import TimerCard from "@/components/timer-card";
+import TimerCard, { HandlePlayPauseTimerProps } from "@/components/timer-card";
 import TimerForm from "@/components/timer-form";
-import { eq } from "drizzle-orm";
-import { Alert } from "react-native";
 
 export default function HomeScreen() {
   const { success, error } = useMigrationHelper();
@@ -33,7 +32,6 @@ export default function HomeScreen() {
 }
 function ScreenContent() {
   const { db } = useDatabase();
-
   // @ts-expect-error
   const { data: timers, error: timersError } = useLiveQuery(db?.select().from(timer));
   // @ts-expect-error
@@ -45,34 +43,37 @@ function ScreenContent() {
   const renderItem = useCallback(
     ({ item, index }: { item: Timer; index: number }) => (
       <TimerCard
+        key={`${timer.id}-${timers.length}`}
         item={item}
+        handlePlayPauseTimer={handlePlayPauseTimer}
         handleDeleteTimer={handleDeleteTimer}
       />
     ),
     []
   );
 
-  if (tagsError || timersError) {
+  if (timersError || tagsError) {
     return <ErrorMessage message="Error loading data." />;
   }
 
+  async function handlePlayPauseTimer({
+    timerId,
+    timeRemaining,
+    isRunning,
+  }: HandlePlayPauseTimerProps) {
+    try {
+      await db?.update(timer).set({ timeRemaining, isRunning }).where(eq(timer.id, timerId));
+    } catch (error) {
+      console.error("error", error);
+    }
+  }
+
   async function handleDeleteTimer(timerId: string) {
-    Alert.alert("Are you absolutely sure?", "Are you sure you want to delete this timer?", [
-      {
-        text: "Cancel",
-      },
-      {
-        text: "Delete",
-        onPress: async () => {
-          try {
-            await db?.delete(timer).where(eq(timer.id, timerId)).execute();
-          } catch (error) {
-            console.error("error", error);
-          }
-        },
-        style: "destructive",
-      },
-    ]);
+    try {
+      await db?.delete(timer).where(eq(timer.id, timerId)).execute();
+    } catch (error) {
+      console.error("error", error);
+    }
   }
 
   return (

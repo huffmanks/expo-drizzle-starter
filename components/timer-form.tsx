@@ -1,13 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as z from "zod";
 
 import { useDatabase } from "@/db/provider";
-import { Tag, timer } from "@/db/schema";
+import { Tag, tag, timer } from "@/db/schema";
 import { handleDurationDisplay, parseTimeInput } from "@/lib/formatTime";
 import { Delete, Play } from "@/lib/icons";
 import { cn } from "@/lib/utils";
@@ -52,13 +52,18 @@ export default function TimerForm({ tags }: TimerFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "Untitled",
-      // tagId: {
-      //   value: "0",
-      //   label: "Untitled",
-      // },
+      tagId: {
+        value: "",
+        label: "",
+      },
       duration: "",
     },
   });
+
+  useEffect(() => {
+    form.setValue("tagId.value", tags?.[0]?.id ?? "Untitled");
+    form.setValue("tagId.label", tags?.[0]?.title ?? "Untitled");
+  }, [tags]);
 
   const contentInsets = {
     top: insets.top,
@@ -71,11 +76,20 @@ export default function TimerForm({ tags }: TimerFormProps) {
     try {
       const duration = parseTimeInput(values.duration);
 
+      let tagId = values.tagId.value;
+
+      if (tagId === "Untitled") {
+        const newTag = await db?.insert(tag).values({ title: "Untitled" }).returning();
+
+        if (!newTag) throw Error;
+        tagId = newTag[0].id;
+      }
+
       await db
         ?.insert(timer)
         .values({
           ...values,
-          tagId: values.tagId.value,
+          tagId,
           duration,
           timeRemaining: duration,
         })
@@ -99,7 +113,7 @@ export default function TimerForm({ tags }: TimerFormProps) {
         }))
       : [
           {
-            value: "0",
+            value: "Untitled",
             label: "Untitled",
           },
         ];
@@ -182,23 +196,23 @@ export default function TimerForm({ tags }: TimerFormProps) {
                   {Array.from({ length: 9 }, (_, i) => (
                     <Button
                       key={i + 1}
-                      className="size-24 items-center justify-center rounded-full bg-teal-600"
+                      className="h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-teal-600"
                       onPress={() => field.onChange((field.value || "") + (i + 1).toString())}>
                       <Text className="text-4xl text-foreground">{i + 1}</Text>
                     </Button>
                   ))}
                   <Button
-                    className="size-24 items-center justify-center rounded-full bg-teal-600"
+                    className="h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-teal-600"
                     onPress={() => field.onChange((field.value || "") + "00")}>
                     <Text className="text-4xl text-foreground">00</Text>
                   </Button>
                   <Button
-                    className="size-24 items-center justify-center rounded-full bg-teal-600"
+                    className="h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-teal-600"
                     onPress={() => field.onChange((field.value || "") + "0")}>
                     <Text className="text-4xl text-foreground">0</Text>
                   </Button>
                   <Button
-                    className="size-24 items-center justify-center rounded-full bg-teal-800"
+                    className="h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-teal-800"
                     onPress={() => field.onChange(field.value?.slice(0, -1))}>
                     <Delete
                       className="mr-0.5 text-foreground"

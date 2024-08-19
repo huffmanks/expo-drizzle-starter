@@ -14,7 +14,7 @@ import { NAV_THEME } from "@/lib/constants";
 import { useColorScheme } from "@/lib/useColorScheme";
 
 import Navbar from "@/components/navbar";
-import { PortalHost } from "@/components/ui/portal";
+import { PortalHost } from "@rn-primitives/portal";
 
 const LIGHT_THEME: Theme = {
   dark: false,
