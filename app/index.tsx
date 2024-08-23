@@ -10,7 +10,7 @@ import { useDatabase } from "@/db/provider";
 import { Timer, tag, timer } from "@/db/schema";
 
 import ErrorMessage from "@/components/error-message";
-import Modal from "@/components/modal";
+import Fab from "@/components/fab";
 import TimerCard, { HandlePlayPauseTimerProps } from "@/components/timer-card";
 import TimerForm from "@/components/timer-form";
 
@@ -78,30 +78,32 @@ function ScreenContent() {
   }
 
   return (
-    <ScrollView
-      contentContainerClassName="mx-auto w-full max-w-lg p-6"
-      showsVerticalScrollIndicator={true}
-      className="bg-background"
-      automaticallyAdjustContentInsets={false}
-      contentInset={{ top: 12 }}>
-      <Modal />
-      <View className="min-h-1">
-        <FlashList
-          ref={ref}
-          className="native:overflow-hidden rounded-t-lg"
-          estimatedItemSize={10}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={() => (
-            <View>
-              <TimerForm tags={tags} />
-            </View>
-          )}
-          data={timers}
-          renderItem={renderItem}
-          keyExtractor={(timer) => `timer-${timer.id}`}
-          ItemSeparatorComponent={() => <View className="py-4" />}
-        />
-      </View>
-    </ScrollView>
+    <View className="relative h-full">
+      <ScrollView
+        contentContainerClassName="mx-auto w-full max-w-lg p-6"
+        showsVerticalScrollIndicator={true}
+        className="bg-background"
+        automaticallyAdjustContentInsets={false}
+        contentInset={{ top: 12 }}>
+        <View className="min-h-1">
+          <FlashList
+            ref={ref}
+            className="native:overflow-hidden rounded-t-lg"
+            estimatedItemSize={10}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={() => (
+              <View>
+                <TimerForm tags={tags} />
+              </View>
+            )}
+            data={timers}
+            renderItem={renderItem}
+            keyExtractor={(timer) => `timer-${timer.id}`}
+            ItemSeparatorComponent={() => <View className="py-4" />}
+          />
+        </View>
+      </ScrollView>
+      <Fab hasTimers={timers && timers.length > 0} />
+    </View>
   );
 }

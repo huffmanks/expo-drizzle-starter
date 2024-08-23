@@ -50,7 +50,9 @@ export default function TagForm() {
           )}
         />
 
-        <Button onPress={form.handleSubmit(onSubmit)}>
+        <Button
+          onPress={form.handleSubmit(onSubmit)}
+          className="bg-teal-500">
           <Text>Submit</Text>
         </Button>
       </View>

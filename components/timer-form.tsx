@@ -51,7 +51,7 @@ export default function TimerForm({ tags }: TimerFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "Untitled",
+      title: "",
       tagId: {
         value: "",
         label: "",
@@ -88,7 +88,7 @@ export default function TimerForm({ tags }: TimerFormProps) {
       await db
         ?.insert(timer)
         .values({
-          ...values,
+          title: values.title === "" ? "Untitled" : values.title,
           tagId,
           duration,
           timeRemaining: duration,
@@ -184,7 +184,7 @@ export default function TimerForm({ tags }: TimerFormProps) {
               <FormItem>
                 <FormInput
                   aria-hidden={true}
-                  label="Duration"
+                  aria-label="Duration"
                   readOnly
                   {...field}
                   style={{ marginTop: -8 }}

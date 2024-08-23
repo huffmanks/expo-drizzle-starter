@@ -13,7 +13,8 @@ import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
 import { NAV_THEME } from "@/lib/constants";
 import { useColorScheme } from "@/lib/useColorScheme";
 
-import Navbar from "@/components/navbar";
+import Logo from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { PortalHost } from "@rn-primitives/portal";
 
 const LIGHT_THEME: Theme = {
@@ -73,10 +74,21 @@ export default function RootLayout() {
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
           <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <Stack screenOptions={{ headerTitle: () => <Navbar />, headerBackVisible: false }}>
+            <Stack
+              screenOptions={{
+                headerLeft: () => <Logo />,
+                headerTitle: "",
+                headerRight: () => <ThemeToggle />,
+              }}>
               <Stack.Screen name="index" />
-              <Stack.Screen name="tags" />
-              <Stack.Screen name="add" />
+              <Stack.Screen
+                name="tags"
+                options={{ headerBackVisible: true }}
+              />
+              <Stack.Screen
+                name="add"
+                options={{ headerBackVisible: true }}
+              />
             </Stack>
           </GestureHandlerRootView>
         </ThemeProvider>

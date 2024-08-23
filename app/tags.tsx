@@ -7,6 +7,7 @@ import { ScrollView, View } from "react-native";
 
 import { useDatabase } from "@/db/provider";
 import { Tag, tag } from "@/db/schema";
+import { Delete } from "@/lib/icons";
 
 import ErrorMessage from "@/components/error-message";
 import ListItem from "@/components/list-item";
@@ -42,8 +43,11 @@ export default function TagsScreen() {
         index={index}
         columnNumber={columnNumber}>
         <AlertDialogTrigger asChild>
-          <Button className="bg-teal-500">
+          <Button
+            variant="secondary"
+            className="flex flex-row justify-between">
             <Text>{item.title}</Text>
+            {item.title !== "Untitled" && <Delete className="text-rose-600" />}
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
