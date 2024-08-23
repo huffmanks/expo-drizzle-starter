@@ -8,6 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "prebuild": "expo prebuild --platform android",
+    "eas": "eas build --profile preview --platform android",
     "export": "expo export -p web",
     "format": "prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
     "db:generate": "drizzle-kit generate",
