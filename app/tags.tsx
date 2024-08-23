@@ -42,7 +42,7 @@ export default function TagsScreen() {
         index={index}
         columnNumber={columnNumber}>
         <AlertDialogTrigger asChild>
-          <Button>
+          <Button className="bg-teal-500">
             <Text>{item.title}</Text>
           </Button>
         </AlertDialogTrigger>

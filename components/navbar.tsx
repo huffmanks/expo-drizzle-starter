@@ -26,6 +26,7 @@ export default function Navbar() {
         <Link href="/tags">
           <Text className="text-xl">Tags</Text>
         </Link>
+
         <Link href="/add">
           <View className="aspect-square items-center justify-center rounded-full bg-muted p-1.5">
             <Plus

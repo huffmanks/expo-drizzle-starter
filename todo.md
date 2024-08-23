@@ -10,3 +10,9 @@
 # timercard
 
 1. web:delete timer works but doesnt remove it from screen
+
+# site
+
+1. create a tag modal instead of page
+2. remove navbar
+3. add floating action button to index for create timer instead of navbar link

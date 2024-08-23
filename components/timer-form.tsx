@@ -104,6 +104,7 @@ export default function TimerForm({ tags }: TimerFormProps) {
   }
 
   const durationExists = form.watch("duration") !== "";
+  const { hours, minutes, seconds } = handleDurationDisplay(form.watch("duration"));
 
   const transformedTags =
     tags && tags.length > 0
@@ -189,30 +190,81 @@ export default function TimerForm({ tags }: TimerFormProps) {
                   style={{ marginTop: -8 }}
                   className="invisible m-0 hidden h-0 select-none p-0 opacity-0"
                 />
-                <View className="rounded-md bg-muted px-6 py-4 focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0">
-                  <Text className="text-xl">{handleDurationDisplay(field.value)}</Text>
+                <View className="flex-row items-center justify-center gap-2 focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0">
+                  <View className="flex-row items-center justify-center">
+                    <Text
+                      className={cn(
+                        "text-5xl",
+                        hours === "00" ? "text-muted-foreground" : "text-teal-500"
+                      )}>
+                      {hours}
+                    </Text>
+                    <Text
+                      className={cn(
+                        "text-5xl",
+                        hours === "00" ? "text-muted-foreground" : "text-teal-500"
+                      )}>
+                      h
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center justify-center">
+                    <Text
+                      className={cn(
+                        "text-5xl",
+                        minutes === "00" ? "text-muted-foreground" : "text-teal-500"
+                      )}>
+                      {minutes}
+                    </Text>
+                    <Text
+                      className={cn(
+                        "text-5xl",
+                        minutes === "00" ? "text-muted-foreground" : "text-teal-500"
+                      )}>
+                      m
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center justify-center">
+                    <Text
+                      className={cn(
+                        "text-5xl",
+                        seconds === "00" ? "text-muted-foreground" : "text-teal-500"
+                      )}>
+                      {seconds}
+                    </Text>
+                    <Text
+                      className={cn(
+                        "text-5xl",
+                        seconds === "00" ? "text-muted-foreground" : "text-teal-500"
+                      )}>
+                      s
+                    </Text>
+                  </View>
                 </View>
-                <View className="mx-auto max-w-sm flex-row flex-wrap gap-4 pt-6">
+                <View className="mx-auto max-w-sm flex-row flex-wrap justify-center gap-4 pt-6">
                   {Array.from({ length: 9 }, (_, i) => (
                     <Button
+                      size="number"
                       key={i + 1}
-                      className="h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-teal-600"
+                      className="bg-muted/50"
                       onPress={() => field.onChange((field.value || "") + (i + 1).toString())}>
                       <Text className="text-4xl text-foreground">{i + 1}</Text>
                     </Button>
                   ))}
                   <Button
-                    className="h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-teal-600"
+                    size="number"
+                    className="bg-muted/50"
                     onPress={() => field.onChange((field.value || "") + "00")}>
                     <Text className="text-4xl text-foreground">00</Text>
                   </Button>
                   <Button
-                    className="h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-teal-600"
+                    size="number"
+                    className="bg-muted/50"
                     onPress={() => field.onChange((field.value || "") + "0")}>
                     <Text className="text-4xl text-foreground">0</Text>
                   </Button>
                   <Button
-                    className="h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-teal-800"
+                    size="number"
+                    className="bg-muted"
                     onPress={() => field.onChange(field.value?.slice(0, -1))}>
                     <Delete
                       className="mr-0.5 text-foreground"
@@ -229,12 +281,13 @@ export default function TimerForm({ tags }: TimerFormProps) {
         {durationExists && (
           <View className="mx-auto mb-8">
             <Button
-              className="size-24 items-center justify-center rounded-full bg-teal-400"
+              size="number"
+              className="items-center justify-center bg-muted"
               onPress={form.handleSubmit(onSubmit)}>
               <Play
-                className="text-foreground"
+                className="text-teal-500"
                 size={36}
-                strokeWidth={1.75}
+                strokeWidth={2.75}
               />
             </Button>
           </View>

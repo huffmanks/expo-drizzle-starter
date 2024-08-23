@@ -10,6 +10,7 @@ import { useDatabase } from "@/db/provider";
 import { Timer, tag, timer } from "@/db/schema";
 
 import ErrorMessage from "@/components/error-message";
+import Modal from "@/components/modal";
 import TimerCard, { HandlePlayPauseTimerProps } from "@/components/timer-card";
 import TimerForm from "@/components/timer-form";
 
@@ -83,6 +84,7 @@ function ScreenContent() {
       className="bg-background"
       automaticallyAdjustContentInsets={false}
       contentInset={{ top: 12 }}>
+      <Modal />
       <View className="min-h-1">
         <FlashList
           ref={ref}

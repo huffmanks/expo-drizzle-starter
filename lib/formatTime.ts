@@ -53,7 +53,20 @@ export function handleDurationDisplay(val: string) {
   if (value.length > 6) value = value.slice(0, 6);
 
   let formattedTime = value.padStart(6, "0");
-  formattedTime = formattedTime.replace(/(\d{2})(\d{2})(\d{2})/, "$1h $2m $3s");
+  const match = formattedTime.match(/(\d{2})(\d{2})(\d{2})/);
 
-  return formattedTime;
+  if (match) {
+    const [_, hours, minutes, seconds] = match;
+    return {
+      hours,
+      minutes,
+      seconds,
+    };
+  }
+
+  return {
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+  };
 }

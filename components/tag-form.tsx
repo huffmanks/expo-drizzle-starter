@@ -35,12 +35,13 @@ export default function TagForm() {
 
   return (
     <Form {...form}>
-      <View className="mb-8 flex-1 flex-row items-end gap-2">
+      <View className="mb-8">
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormInput
+              className="mb-4"
               label="Add a tag"
               placeholder="focus, play"
               autoCapitalize="none"
